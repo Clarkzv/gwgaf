@@ -32,22 +32,19 @@ def send_request_with_random_proxy(url, headers):
         # Get a random proxy for the request
         proxy = random.choice(proxies)
 
-        # Print the request URL with parameters
-        url_with_params = url + '?' + '&'.join([f'{key}={value}' for key, value in headers.items()])
-        print(f"Request sent: {url_with_params}")
-
         response = requests.get(url, headers=headers, proxies={'http': proxy, 'https': proxy})
 
         # If the response status code is not 200, switch to another random proxy and retry
         while response.status_code != 200:
             print(f"Request failed with proxy: {proxy}. Retrying...")
             proxy = random.choice(proxies)
-
-            # Print the request URL with parameters for retry attempt
-            url_with_params = url + '?' + '&'.join([f'{key}={value}' for key, value in headers.items()])
-            print(f"Request sent: {url_with_params}")
-
             response = requests.get(url, headers=headers, proxies={'http': proxy, 'https': proxy})
+
+        # Print the request URL and response content when a successful response is obtained
+        url_with_params = url + '?' + '&'.join([f'{key}={value}' for key, value in headers.items()])
+        print(f"Request sent: {url_with_params}")
+        print("Response from API:")
+        print(response.text)
 
         return response
 
@@ -91,11 +88,11 @@ headerCode = {"userId": userId,
               }
 
 response = send_request_with_random_proxy(url_Code, headerCode)
-print(response.status_code)
 
-if response.status_code != 200:
+if response is not None:
+    print(response.status_code)
     print(response.json())
-    NoEmail = True
+    NoEmail = response.status_code != 200
 
 
 def Zeyrum_function():
@@ -153,8 +150,10 @@ for i in range(120000, 999999):
                       }
 
         response = send_request_with_random_proxy(verify_url, headerCode)
-        print(response.status_code)
-        print(i)
+
+        if response is not None:
+            print(response.status_code)
+            print(response.json())
         start_time = time.time()
 
     if NoEmail is True:
